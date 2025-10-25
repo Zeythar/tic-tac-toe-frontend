@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
+import { getSignalRHubUrl } from '../../config/environment';
 
 /**
  * Service responsible for SignalR connection lifecycle management.
@@ -29,8 +30,11 @@ export class SignalRConnectionService {
       return;
     }
 
+    const hubUrl = getSignalRHubUrl();
+    console.log('[SignalRConnection] Connecting to:', hubUrl);
+
     this.connection = new signalR.HubConnectionBuilder()
-      .withUrl('/gameHub')
+      .withUrl(hubUrl)
       .withAutomaticReconnect()
       .build();
 
@@ -43,7 +47,9 @@ export class SignalRConnectionService {
    */
   async start(): Promise<void> {
     if (!this.connection) {
-      throw new Error('[SignalRConnection] Connection not initialized. Call initialize() first.');
+      throw new Error(
+        '[SignalRConnection] Connection not initialized. Call initialize() first.'
+      );
     }
 
     if (this.connection.state === signalR.HubConnectionState.Connected) {
@@ -121,7 +127,9 @@ export class SignalRConnectionService {
    *
    * @param callback - Function to call when reconnected
    */
-  onReconnected(callback: (connectionId?: string) => void | Promise<void>): void {
+  onReconnected(
+    callback: (connectionId?: string) => void | Promise<void>
+  ): void {
     if (!this.connection) {
       console.warn(
         '[SignalRConnection] Cannot register onreconnected - connection not initialized'
@@ -155,7 +163,9 @@ export class SignalRConnectionService {
    */
   onClose(callback: (error?: Error) => void | Promise<void>): void {
     if (!this.connection) {
-      console.warn('[SignalRConnection] Cannot register onclose - connection not initialized');
+      console.warn(
+        '[SignalRConnection] Cannot register onclose - connection not initialized'
+      );
       return;
     }
 

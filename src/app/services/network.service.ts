@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { getSignalRHubUrl } from '../config/environment';
 
 /**
  * Service for tracking network connectivity status.
@@ -83,10 +84,13 @@ export class NetworkService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
+      const hubUrl = getSignalRHubUrl();
+      const negotiateUrl = `${hubUrl}/negotiate`;
+
       // Use a lightweight HEAD request and only treat 2xx (response.ok) as online.
       // Non-2xx responses (404, 500, etc.) mean the backend isn't available (e.g. not deployed)
       // so we should mark offline to disable online-only UI.
-      const response = await fetch('/gameHub/negotiate', {
+      const response = await fetch(negotiateUrl, {
         method: 'HEAD',
         signal: controller.signal,
         cache: 'no-cache',
