@@ -2,9 +2,12 @@
 
 /* animations moved to global styles to reduce component size */
 
-.share-container {
+::host {
+  max-width: 34rem;
   width: 100%;
-  max-width: 28rem;
+}
+
+.share-container {
   margin: 0 auto;
   animation: fadeInScale 0.3s ease-out forwards;
 }
@@ -28,7 +31,11 @@
   height: 5rem; /* h-20 */
   margin: 0 auto 1.5rem; /* mx-auto mb-6 */
   border-radius: 9999px;
-  background: linear-gradient(135deg, #ec4899 0%, #fb7185 100%); /* from-pink-500 to-rose-500 */
+  background: linear-gradient(
+    135deg,
+    #ec4899 0%,
+    #fb7185 100%
+  ); /* from-pink-500 to-rose-500 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,7 +51,11 @@
 
 /* Variant for AI settings: green gradient */
 .share-icon-wrapper.ai {
-  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%); /* emerald to teal */
+  background: linear-gradient(
+    135deg,
+    #10b981 0%,
+    #14b8a6 100%
+  ); /* emerald to teal */
 }
 
 .card-title {
@@ -139,7 +150,11 @@
 
 .difficulty-btn.active {
   box-shadow: 0 6px 18px rgba(16, 185, 129, 0.12);
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.02)
+  );
 }
 
 /* Hard variant uses green gradient to encourage selection */
