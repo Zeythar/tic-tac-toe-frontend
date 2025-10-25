@@ -91,7 +91,7 @@ export class NetworkService {
       // Non-2xx responses (404, 500, etc.) mean the backend isn't available (e.g. not deployed)
       // so we should mark offline to disable online-only UI.
       const response = await fetch(negotiateUrl, {
-        method: 'HEAD',
+        method: 'POST',
         signal: controller.signal,
         cache: 'no-cache',
       });
