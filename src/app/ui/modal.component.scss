@@ -1,0 +1,178 @@
+/* System Modal styles with glass morphism and animations */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1rem;
+  /* Make the modal responsive and include padding in width calculations */
+  box-sizing: border-box;
+  width: 512px;
+  max-width: 100%;
+  padding: 2rem;
+  z-index: 2001;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Optional modifier for narrower dialogs (useful for short messages) */
+.modal-card--narrow {
+  width: min(80vw, 32rem);
+}
+
+.modal-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.icon-wrapper {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+
+  .icon {
+    width: 40px;
+    height: 40px;
+    color: white;
+  }
+}
+
+.modal-title {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.modal-body {
+  margin-bottom: 2rem;
+}
+
+.modal-message {
+  color: #bfdbfe;
+  font-size: 1rem;
+  line-height: 1.5;
+  text-align: center;
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.action-row {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+  width: 100%;
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    position: relative;
+    pointer-events: none;
+
+    // Gray overlay that works with any gradient background
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(128, 128, 128, 0.6);
+      border-radius: 0.5rem;
+      pointer-events: none;
+    }
+
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #ec4899 0%, #fb7185 100%);
+  color: white;
+
+  &:hover {
+    background: linear-gradient(90deg, #db2777 0%, #f43f5e 100%);
+  }
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+}

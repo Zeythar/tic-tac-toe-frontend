@@ -1,0 +1,217 @@
+/* ShareCode component styles with animations matching React motion */
+
+/* animations moved to global styles to reduce component size */
+
+.share-container {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  animation: fadeInScale 0.3s ease-out forwards;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+/* .card moved to global styles */
+
+.card-header {
+  text-align: center;
+  margin-bottom: 2rem; /* mb-8 */
+}
+
+.share-icon-wrapper {
+  width: 5rem; /* w-20 */
+  height: 5rem; /* h-20 */
+  margin: 0 auto 1.5rem; /* mx-auto mb-6 */
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ec4899 0%, #fb7185 100%); /* from-pink-500 to-rose-500 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* React motion: spring with stiffness 200, delay 0.2s */
+  animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+
+  .icon {
+    width: 40px;
+    height: 40px;
+    color: white;
+  }
+}
+
+/* Variant for AI settings: green gradient */
+.share-icon-wrapper.ai {
+  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%); /* emerald to teal */
+}
+
+.card-title {
+  color: white;
+  margin-bottom: 0.5rem; /* mb-2 */
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  color: #bfdbfe; /* text-blue-200 */
+  font-size: 0.875rem;
+}
+
+.share-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* space-y-4 */
+}
+
+.link-container {
+  position: relative;
+}
+
+.link-box {
+  background: rgba(255, 255, 255, 0.05); /* bg-white/5 */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* border-white/10 */
+  border-radius: 0.5rem;
+  padding: 1rem 3rem 1rem 1rem; /* p-4 pr-12 */
+  color: white;
+  word-break: break-all;
+  font-size: 0.875rem;
+}
+
+.copy-button {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #ec4899 0%, #fb7185 100%);
+  border: none;
+  border-radius: 0.375rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 200ms ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #db2777 0%, #f43f5e 100%);
+  }
+
+  .icon {
+    width: 16px;
+    height: 16px;
+    color: white;
+  }
+}
+
+.button-section {
+  padding-top: 1rem; /* pt-4 */
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.difficulty-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.difficulty-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.difficulty-btn:hover {
+  transform: translateY(-2px);
+}
+
+.difficulty-btn.active {
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.12);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+}
+
+/* Hard variant uses green gradient to encourage selection */
+.difficulty-btn.hard {
+  /* subtle emerald hint even when inactive */
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.04);
+}
+
+.difficulty-btn.hard.active {
+  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.18);
+  transform: translateY(-3px) scale(1.02);
+}
+
+.waiting-note {
+  color: #bfdbfe; /* text-blue-200 */
+  text-align: center;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.waiting-note .dot {
+  opacity: 0;
+  display: inline-block;
+  animation: dotPulse 1s infinite steps(1, end);
+  margin-left: 2px;
+}
+.waiting-note .dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.waiting-note .dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.waiting-note .dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.continue-button {
+  width: 100%;
+  background: linear-gradient(90deg, #ec4899 0%, #fb7185 100%);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 200ms ease;
+
+  &:hover {
+    background: linear-gradient(90deg, #db2777 0%, #f43f5e 100%);
+  }
+}
+
+.prototype-note {
+  color: #bfdbfe; /* text-blue-200 */
+  text-align: center;
+  font-size: 0.875rem;
+  margin: 0;
+}

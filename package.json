@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -22,12 +22,17 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^20.3.6",
     "@angular/common": "^20.3.0",
     "@angular/compiler": "^20.3.0",
     "@angular/core": "^20.3.0",
     "@angular/forms": "^20.3.0",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
+    "@angular/service-worker": "^20.3.0",
+    "@microsoft/signalr": "^7.0.5",
+    "lucide": "^0.546.0",
+    "lucide-angular": "^0.546.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

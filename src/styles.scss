@@ -1,1 +1,58 @@
 /* You can add global styles to this file, and also import other style files */
+
+body {
+  margin: 0;
+  min-height: 100vh; /* min-h-screen */
+  display: flex;
+  align-items: center; /* items-center */
+  justify-content: center; /* justify-center */
+  /* bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 */
+  background: linear-gradient(135deg, #4c1d95 0%, #1e3a8a 50%, #312e81 100%);
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Shared card utility used by multiple components. Extracted from game-board.component.scss
+   to reduce per-component CSS size and provide a consistent look across the app. */
+.card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.75rem;
+  padding: 2rem;
+}
+
+/* Shared animations used by multiple components */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes scaleIn {
+  from {
+    transform: scale(0) rotate(-180deg);
+  }
+  to {
+    transform: scale(1) rotate(0);
+  }
+}
+
+/* Shared SVG gradient colors for X and O icons (keeps defs centralized) */
+svg[aria-label='X'] defs linearGradient stop:first-child {
+  stop-color: #ec4899;
+}
+svg[aria-label='X'] defs linearGradient stop:last-child {
+  stop-color: #f43f5e;
+}
+svg[aria-label='O'] defs linearGradient stop:first-child {
+  stop-color: #06b6d4;
+}
+svg[aria-label='O'] defs linearGradient stop:last-child {
+  stop-color: #3b82f6;
+}
