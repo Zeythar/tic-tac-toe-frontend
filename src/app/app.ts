@@ -17,6 +17,7 @@ import { GameSessionService } from './services/game-session.service';
 import { GameFlowService } from './services/game-flow.service';
 import { LocalGameService } from './services/game-modes/local-game.service';
 import { AiGameService } from './services/game-modes/ai-game.service';
+import { NetworkService } from './services/network.service';
 
 @Component({
   selector: 'app-root',
@@ -37,6 +38,8 @@ import { AiGameService } from './services/game-modes/ai-game.service';
 export class App implements OnDestroy {
   // Inject services
   private readonly signalR = inject(SignalRService);
+  // ensure NetworkService is constructed on app startup so background checks run
+  private readonly network = inject(NetworkService);
   protected readonly gameState = inject(GameStateService);
   private readonly gameActions = inject(GameActionsService);
   private readonly gameSession = inject(GameSessionService);
@@ -64,7 +67,8 @@ export class App implements OnDestroy {
   protected readonly disconnectedPlayerId = this.gameState.disconnectedPlayerId;
   protected readonly countdownSeconds = this.gameState.countdownSeconds;
   protected readonly myTurnCountdown = this.gameState.myTurnCountdown;
-  protected readonly opponentTurnCountdown = this.gameState.opponentTurnCountdown;
+  protected readonly opponentTurnCountdown =
+    this.gameState.opponentTurnCountdown;
   protected readonly copied = this.gameState.copied;
   protected readonly moveError = this.gameState.moveError;
 
@@ -108,7 +112,10 @@ export class App implements OnDestroy {
       } else {
         // Hide toast when conditions no longer apply
         const currentToast = this.toastService.currentToast();
-        if (currentToast?.type === 'warning' && currentToast.message.includes('Opponent left')) {
+        if (
+          currentToast?.type === 'warning' &&
+          currentToast.message.includes('Opponent left')
+        ) {
           this.toastService.hide();
         }
       }
@@ -122,13 +129,18 @@ export class App implements OnDestroy {
         if (this.modalService.isGameOverModal()) {
           this.modalService.updateRematchState({ rematchOfferedByMe: false });
         } else {
-          this.modalService.showInfo('Rematch failed', res.error ?? 'Failed to offer rematch');
+          this.modalService.showInfo(
+            'Rematch failed',
+            res.error ?? 'Failed to offer rematch'
+          );
         }
       } else {
         if (this.modalService.isGameOverModal()) {
           this.modalService.updateRematchState({
             rematchOfferedByMe: true,
-            ...(res.remainingSeconds != null ? { remainingSeconds: res.remainingSeconds } : {}),
+            ...(res.remainingSeconds != null
+              ? { remainingSeconds: res.remainingSeconds }
+              : {}),
           });
         } else {
           this.modalService.showInfo(
@@ -136,7 +148,9 @@ export class App implements OnDestroy {
             'Waiting for opponent to accept the rematch...'
           );
           if (res.remainingSeconds != null) {
-            this.modalService.update({ remainingSeconds: res.remainingSeconds });
+            this.modalService.update({
+              remainingSeconds: res.remainingSeconds,
+            });
           }
         }
       }
@@ -155,7 +169,10 @@ export class App implements OnDestroy {
             offeredByOpponent: false,
           });
         } else {
-          this.modalService.showInfo('Accept failed', res.error ?? 'Failed to accept rematch');
+          this.modalService.showInfo(
+            'Accept failed',
+            res.error ?? 'Failed to accept rematch'
+          );
         }
       } else {
         if (res.started) {
@@ -167,7 +184,10 @@ export class App implements OnDestroy {
               offeredByOpponent: false,
             });
           } else {
-            this.modalService.showInfo('Accepted', 'Rematch accepted, waiting for opponent.');
+            this.modalService.showInfo(
+              'Accepted',
+              'Rematch accepted, waiting for opponent.'
+            );
           }
         }
       }
@@ -247,7 +267,10 @@ export class App implements OnDestroy {
             this.gameFlow.handleShareLinkJoin(code);
           }, 0);
         } catch (error) {
-          console.error('[App] Failed to initialize SignalR for share link', error);
+          console.error(
+            '[App] Failed to initialize SignalR for share link',
+            error
+          );
           this.modalService.showError(
             'Connection Failed',
             'Unable to connect to the game server. Please check your internet connection and try again.'
@@ -266,7 +289,9 @@ export class App implements OnDestroy {
   }
 
   /** Join an existing online game */
-  protected async joinGame(code: string): Promise<{ success: boolean; errorCode?: string } | void> {
+  protected async joinGame(
+    code: string
+  ): Promise<{ success: boolean; errorCode?: string } | void> {
     return this.gameFlow.joinOnlineGame(code);
   }
 

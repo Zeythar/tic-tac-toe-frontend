@@ -83,29 +83,30 @@ export class NetworkService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
+      // Use a lightweight HEAD request and only treat 2xx (response.ok) as online.
+      // Non-2xx responses (404, 500, etc.) mean the backend isn't available (e.g. not deployed)
+      // so we should mark offline to disable online-only UI.
       const response = await fetch('/gameHub/negotiate', {
-        method: 'POST',
+        method: 'HEAD',
         signal: controller.signal,
         cache: 'no-cache',
       });
 
       clearTimeout(timeoutId);
 
-      // Check if we got a valid response from the backend
-      // 500 errors or network errors mean the backend is not reachable
-      // 200-299, 400-499 (except 503) indicate the server is reachable
-      const isServerReachable =
-        response.ok || (response.status >= 400 && response.status < 500 && response.status !== 503);
+      const nowOnline = response.ok === true; // only 2xx counts as online
 
-      if (isServerReachable) {
+      if (nowOnline) {
         if (!this._isOnline()) {
           console.log('[Network] Connection verified - back online');
         }
         this._isOnline.set(true);
       } else {
-        // 500, 503, or other server errors indicate backend is down
         if (this._isOnline()) {
-          console.log('[Network] Server unreachable - marking offline');
+          console.log(
+            '[Network] Server returned non-2xx - marking offline',
+            response.status
+          );
         }
         this._isOnline.set(false);
       }
