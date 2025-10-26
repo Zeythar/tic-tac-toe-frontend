@@ -5,7 +5,12 @@ import {
   setStoredGameCode,
   setStoredPlayerId,
 } from '../../../utils/storage.util';
-import { GameState, GameStateResult, RoomStateDto } from '../../../types/game.types';
+import {
+  GameState,
+  GameStateResult,
+  RoomStateDto,
+} from '../../../types/game.types';
+import { logger } from '../../../utils/logger.util';
 
 export type SignalRServiceLike = {
   connection: any;
@@ -28,7 +33,7 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
     if (!svc.connection) return;
 
     svc.connection.onreconnected(async () => {
-      console.log('[SignalR] Reconnected - attempting to restore session');
+      logger.debug('[SignalR] Reconnected - attempting to restore session');
 
       let code = svc.gameState.gameCode();
       let pid = svc.gameState.playerId();
@@ -39,7 +44,7 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
       if (storedCode) code = storedCode;
       if (storedPid) pid = storedPid;
 
-      console.debug('[SignalR] Reconnection - code:', code, 'playerId:', pid);
+      logger.debug('[SignalR] Reconnection - code:', code, 'playerId:', pid);
 
       if (code && pid) {
         await attemptReconnect(code, pid);
@@ -49,7 +54,10 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
     });
   };
 
-  const attemptReconnect = async (code: string, playerId: string): Promise<void> => {
+  const attemptReconnect = async (
+    code: string,
+    playerId: string
+  ): Promise<void> => {
     try {
       if (!svc.handlersRegistered) {
         try {
@@ -59,8 +67,18 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
         }
       }
 
-      console.debug('[SignalR] Attempting Reconnect(', code, ',', playerId, ')');
-      const res = await svc.invoke<GameStateResult>('Reconnect', code, playerId);
+      console.debug(
+        '[SignalR] Attempting Reconnect(',
+        code,
+        ',',
+        playerId,
+        ')'
+      );
+      const res = await svc.invoke<GameStateResult>(
+        'Reconnect',
+        code,
+        playerId
+      );
       console.debug('[SignalR] Reconnect result:', res);
 
       const reconnectSucceeded =
@@ -68,7 +86,9 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
         (res && typeof res === 'object' && (res as any).success !== false);
 
       if (!reconnectSucceeded) {
-        console.debug('[SignalR] Reconnect reported failure, falling back to JoinGame');
+        console.debug(
+          '[SignalR] Reconnect reported failure, falling back to JoinGame'
+        );
         await svc.attemptJoinGame(code);
         return;
       }
@@ -109,7 +129,9 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
             board: asState.board as Array<string | null> | undefined,
             currentTurn: asState.currentTurn ?? undefined,
             isOver:
-              typeof asState.isGameOver !== 'undefined' ? Boolean(asState.isGameOver) : undefined,
+              typeof asState.isGameOver !== 'undefined'
+                ? Boolean(asState.isGameOver)
+                : undefined,
             winner: asState.winner ?? undefined,
             mySymbol: asState.symbol ?? undefined,
           };
@@ -154,10 +176,15 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
             svc.pendingSyncedTimer = null;
           }
 
-          console.debug('[SignalR] Applied authoritative state from Reconnect RPC');
+          console.debug(
+            '[SignalR] Applied authoritative state from Reconnect RPC'
+          );
           return;
         } catch (e) {
-          console.warn('[SignalR] Failed to apply Reconnect state payload, will fallback', e);
+          console.warn(
+            '[SignalR] Failed to apply Reconnect state payload, will fallback',
+            e
+          );
         }
       }
 
@@ -165,18 +192,28 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
       if (synced) {
         console.debug('[SignalR] SyncedState received after Reconnect');
       } else {
-        console.debug('[SignalR] SyncedState did not arrive, fetching state via GetRoomState');
+        console.debug(
+          '[SignalR] SyncedState did not arrive, fetching state via GetRoomState'
+        );
         // Prefer GetRoomState for accurate reconnection countdown data
         try {
           const resp = await svc.invoke<any>('GetRoomState', code, playerId);
           console.debug('[SignalR] GetRoomState result:', resp);
 
-          if (resp && typeof resp === 'object' && resp.success === true && resp.payload) {
+          if (
+            resp &&
+            typeof resp === 'object' &&
+            resp.success === true &&
+            resp.payload
+          ) {
             const room = resp.payload as RoomStateDto & any;
 
             // Apply basic game state if present
             try {
-              if (svc.gameState && typeof svc.gameState.updateGameState === 'function') {
+              if (
+                svc.gameState &&
+                typeof svc.gameState.updateGameState === 'function'
+              ) {
                 const possibleState = (room as any).state ?? room;
                 svc.gameState.updateGameState(possibleState as any);
               }
@@ -211,15 +248,21 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
             // Map convenience opponent flags
             try {
               if (typeof (room as any).opponentPresent !== 'undefined') {
-                svc.gameState.setOpponentPresent(Boolean((room as any).opponentPresent));
+                svc.gameState.setOpponentPresent(
+                  Boolean((room as any).opponentPresent)
+                );
               }
               if (typeof (room as any).opponentConnected !== 'undefined') {
                 // Keep the presence flag in sync; UI can read opponentConnected from
                 // the payload when needed. If you want a separate signal, add it to GameStateService.
-                svc.gameState.setOpponentPresent(Boolean((room as any).opponentPresent));
+                svc.gameState.setOpponentPresent(
+                  Boolean((room as any).opponentPresent)
+                );
               }
               if (typeof (room as any).disconnectedPlayerId !== 'undefined') {
-                svc.gameState.setDisconnectedPlayerId((room as any).disconnectedPlayerId ?? null);
+                svc.gameState.setDisconnectedPlayerId(
+                  (room as any).disconnectedPlayerId ?? null
+                );
               }
             } catch (e) {
               /* ignore */
@@ -228,15 +271,24 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
             // If server provides disconnectedPlayers with remainingReconnectionSeconds,
             // map the value to the GameState countdown and timers.
             try {
-              const disconnected = (room as any)?.disconnectedPlayers as Array<any> | undefined;
+              const disconnected = (room as any)?.disconnectedPlayers as
+                | Array<any>
+                | undefined;
               if (Array.isArray(disconnected) && disconnected.length > 0) {
-                const match = disconnected.find((d) => d?.playerId === playerId) ?? disconnected[0];
-                const remaining = Number(match?.remainingReconnectionSeconds ?? null);
+                const match =
+                  disconnected.find((d) => d?.playerId === playerId) ??
+                  disconnected[0];
+                const remaining = Number(
+                  match?.remainingReconnectionSeconds ?? null
+                );
                 if (!Number.isNaN(remaining) && remaining > 0) {
                   try {
                     svc.gameState.setCountdownSeconds(remaining);
                     // If timers helper exists, show countdown using opponent tick (or add a dedicated API)
-                    if (svc.timers && typeof svc.timers.onOpponentTurnTick === 'function') {
+                    if (
+                      svc.timers &&
+                      typeof svc.timers.onOpponentTurnTick === 'function'
+                    ) {
                       try {
                         svc.timers.onOpponentTurnTick(remaining);
                       } catch (e) {
@@ -268,11 +320,16 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
               svc.pendingSyncedTimer = null;
             }
 
-            console.debug('[SignalR] Applied authoritative state from GetRoomState');
+            console.debug(
+              '[SignalR] Applied authoritative state from GetRoomState'
+            );
             return;
           }
         } catch (e) {
-          console.debug('[SignalR] GetRoomState failed, falling back to GetGameState', e);
+          console.debug(
+            '[SignalR] GetRoomState failed, falling back to GetGameState',
+            e
+          );
           try {
             await svc.fetchGameState(code, playerId);
           } catch (ee) {
@@ -294,7 +351,8 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
 
     // Skip auto-reconnect if on share screen (creator hasn't joined yet)
     try {
-      const path = typeof window !== 'undefined' ? window.location?.pathname : null;
+      const path =
+        typeof window !== 'undefined' ? window.location?.pathname : null;
       if (path) {
         const m = path.match(/^\/room\/([^\/]+)\/?$/i);
         if (m && m[1]) {
@@ -314,11 +372,18 @@ export function createReconnectionHandlers(svc: SignalRServiceLike) {
 
     // Only reconnect if we have both code and playerId (previously joined player)
     if (!storedPid) {
-      console.debug('[SignalR] Skipping auto-reconnect - no playerId (creator on share screen)');
+      console.debug(
+        '[SignalR] Skipping auto-reconnect - no playerId (creator on share screen)'
+      );
       return;
     }
 
-    console.debug('[SignalR] Auto-reconnect - code:', storedCode, 'playerId:', storedPid);
+    console.debug(
+      '[SignalR] Auto-reconnect - code:',
+      storedCode,
+      'playerId:',
+      storedPid
+    );
 
     if (storedCode && storedPid) {
       await attemptReconnect(storedCode, storedPid);

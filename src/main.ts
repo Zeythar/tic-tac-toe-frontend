@@ -20,6 +20,7 @@ import {
   Frown,
   Handshake,
   AlertTriangle,
+  Loader2,
   Flag,
   Clock,
   AlertCircle,
@@ -47,6 +48,7 @@ const lucideProviders =
     Frown,
     Handshake,
     AlertTriangle,
+    Loader2,
     Flag,
     Clock,
     AlertCircle,
@@ -55,8 +57,12 @@ const lucideProviders =
 
 bootstrapApplication(App, {
   ...appConfig,
-  providers: [...(appConfig.providers ?? []), ...lucideProviders, provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          })],
+  providers: [
+    ...(appConfig.providers ?? []),
+    ...lucideProviders,
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
+  ],
 }).catch((err) => console.error(err));

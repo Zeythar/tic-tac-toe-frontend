@@ -4,15 +4,24 @@ import { GameStateService } from '../game-state.service';
 import { SignalRConnectionService } from './signalr-connection.service';
 import { SignalREventService } from './signalr-event.service';
 import { SignalRReconnectionService } from './signalr-reconnection.service';
-import { GameState, GameStateResult, GameOverDto } from '../../types/game.types';
+import {
+  GameState,
+  GameStateResult,
+  GameOverDto,
+} from '../../types/game.types';
 import {
   getStoredGameCode,
   getStoredPlayerId,
   setStoredGameCode,
   setStoredPlayerId,
 } from '../../utils/storage.util';
+import { logger } from '../../utils/logger.util';
 
-export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
+export type ConnectionState =
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'error';
 
 /**
  * Facade service for SignalR functionality.
@@ -53,7 +62,7 @@ export class SignalRService {
   async initialize(skipAutoReconnect = false): Promise<void> {
     // Prevent multiple initializations
     if (this._initialized) {
-      console.log('[SignalR] Already initialized, skipping');
+      logger.debug('[SignalR] Already initialized, skipping');
       return;
     }
 
@@ -80,7 +89,7 @@ export class SignalRService {
 
       // Start the connection
       await this.connectionService.start();
-      console.log('[SignalR] Connection started');
+      logger.debug('[SignalR] Connection started');
 
       this._initialized = true;
       this._connectionState.set('connected');
@@ -92,7 +101,9 @@ export class SignalRService {
     } catch (err) {
       console.error('[SignalR] Connection error:', err);
       this._connectionState.set('error');
-      this._connectionError.set(err instanceof Error ? err.message : 'Failed to connect to server');
+      this._connectionError.set(
+        err instanceof Error ? err.message : 'Failed to connect to server'
+      );
       throw err; // Re-throw so caller can handle
     }
   }
@@ -128,7 +139,11 @@ export class SignalRService {
   private async fetchGameState(code: string, playerId?: string): Promise<void> {
     try {
       // Backend returns ApiResponse<GameState>, unwrap the payload
-      const response = await this.connectionService.invoke<any>('GetGameState', code, playerId);
+      const response = await this.connectionService.invoke<any>(
+        'GetGameState',
+        code,
+        playerId
+      );
       console.debug('[SignalR] GetGameState result:', response);
 
       // Unwrap the payload from ApiResponse wrapper

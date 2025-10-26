@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { getSignalRHubUrl } from '../../config/environment';
+import { logger } from '../../utils/logger.util';
 
 /**
  * Service responsible for SignalR connection lifecycle management.
@@ -31,14 +32,14 @@ export class SignalRConnectionService {
     }
 
     const hubUrl = getSignalRHubUrl();
-    console.log('[SignalRConnection] Connecting to:', hubUrl);
+    logger.debug('[SignalRConnection] Connecting to:', hubUrl);
 
     this.connection = new signalR.HubConnectionBuilder()
       .withUrl(hubUrl)
       .withAutomaticReconnect()
       .build();
 
-    console.log('[SignalRConnection] Connection initialized');
+    logger.debug('[SignalRConnection] Connection initialized');
   }
 
   /**
@@ -59,7 +60,7 @@ export class SignalRConnectionService {
 
     try {
       await this.connection.start();
-      console.log('[SignalRConnection] Connection started');
+      logger.debug('[SignalRConnection] Connection started');
     } catch (err) {
       console.error('[SignalRConnection] Connection start error:', err);
       throw err;
@@ -76,7 +77,7 @@ export class SignalRConnectionService {
 
     try {
       await this.connection.stop();
-      console.log('[SignalRConnection] Connection stopped');
+      logger.debug('[SignalRConnection] Connection stopped');
     } catch (err) {
       console.error('[SignalRConnection] Connection stop error:', err);
       throw err;

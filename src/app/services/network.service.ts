@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { getSignalRHubUrl } from '../config/environment';
+import { logger } from '../utils/logger.util';
 
 /**
  * Service for tracking network connectivity status.
@@ -28,12 +29,12 @@ export class NetworkService {
     if (typeof window !== 'undefined') {
       // Listen for online/offline events
       window.addEventListener('online', () => {
-        console.log('[Network] Browser reports online');
+        logger.debug('[Network] Browser reports online');
         this.verifyConnectivity();
       });
 
       window.addEventListener('offline', () => {
-        console.log('[Network] Browser reports offline');
+        logger.debug('[Network] Browser reports offline');
         this._isOnline.set(false);
       });
 
@@ -102,12 +103,12 @@ export class NetworkService {
 
       if (nowOnline) {
         if (!this._isOnline()) {
-          console.log('[Network] Connection verified - back online');
+          logger.debug('[Network] Connection verified - back online');
         }
         this._isOnline.set(true);
       } else {
         if (this._isOnline()) {
-          console.log(
+          logger.debug(
             '[Network] Server returned non-2xx - marking offline',
             response.status
           );
@@ -117,7 +118,7 @@ export class NetworkService {
     } catch (error) {
       // Fetch failed - network error, timeout, or CORS issue
       if (this._isOnline()) {
-        console.log('[Network] Connection check failed - offline');
+        logger.debug('[Network] Connection check failed - offline');
       }
       this._isOnline.set(false);
     }

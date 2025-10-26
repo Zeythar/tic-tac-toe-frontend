@@ -6,6 +6,7 @@ import {
   SignalRServiceLike,
 } from './signalr-helpers/reconnection.logic';
 import { getStoredGameCode, getStoredPlayerId } from '../../utils/storage.util';
+import { logger } from '../../utils/logger.util';
 
 /**
  * Service responsible for SignalR reconnection logic and session restoration.
@@ -23,7 +24,9 @@ import { getStoredGameCode, getStoredPlayerId } from '../../utils/storage.util';
   providedIn: 'root',
 })
 export class SignalRReconnectionService {
-  private reconnectionHelpers: ReturnType<typeof createReconnectionHandlers> | null = null;
+  private reconnectionHelpers: ReturnType<
+    typeof createReconnectionHandlers
+  > | null = null;
 
   constructor(
     private gameState: GameStateService,
@@ -49,7 +52,9 @@ export class SignalRReconnectionService {
   ): void {
     const connection = this.connectionService.getConnection();
     if (!connection) {
-      console.warn('[SignalRReconnection] Cannot initialize - connection not available');
+      console.warn(
+        '[SignalRReconnection] Cannot initialize - connection not available'
+      );
       return;
     }
 
@@ -68,7 +73,7 @@ export class SignalRReconnectionService {
 
     this.reconnectionHelpers = createReconnectionHandlers(serviceAdapter);
     this.reconnectionHelpers.registerReconnectionHandlers();
-    console.log('[SignalRReconnection] Reconnection handlers registered');
+    logger.debug('[SignalRReconnection] Reconnection handlers registered');
   }
 
   /**
@@ -79,7 +84,9 @@ export class SignalRReconnectionService {
    */
   async attemptReconnect(code: string, playerId: string): Promise<void> {
     if (!this.reconnectionHelpers) {
-      console.warn('[SignalRReconnection] Reconnection helpers not initialized');
+      console.warn(
+        '[SignalRReconnection] Reconnection helpers not initialized'
+      );
       return;
     }
 
@@ -96,7 +103,10 @@ export class SignalRReconnectionService {
    * - No stored player ID (creator on share screen)
    */
   async attemptAutoReconnect(): Promise<void> {
-    if (this.reconnectionHelpers && this.reconnectionHelpers.attemptAutoReconnect) {
+    if (
+      this.reconnectionHelpers &&
+      this.reconnectionHelpers.attemptAutoReconnect
+    ) {
       await this.reconnectionHelpers.attemptAutoReconnect();
       return;
     }
