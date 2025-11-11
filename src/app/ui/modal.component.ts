@@ -1,5 +1,4 @@
 import { Component, input, output, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { getModalGradient, getGradient } from '../utils/theme-gradients.util';
 import { ExtendedModalType } from '../types/modal.types';
@@ -24,7 +23,7 @@ export interface SystemModalData {
 @Component({
   selector: 'app-modal',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [LucideAngularModule],
   template: `
     @if (modalData()) {
     <div class="modal-overlay" (click)="onOverlayClick()">
@@ -42,7 +41,11 @@ export interface SystemModalData {
             } @case ('roomExpired') {
             <lucide-icon name="Clock" class="icon" size="40"></lucide-icon>
             } @default {
-            <lucide-icon name="AlertCircle" class="icon" size="40"></lucide-icon>
+            <lucide-icon
+              name="AlertCircle"
+              class="icon"
+              size="40"
+            ></lucide-icon>
             } }
           </div>
           <h2 class="modal-title">{{ modalData()?.title }}</h2>
@@ -62,33 +65,41 @@ export interface SystemModalData {
               (click)="onRematch()"
               [style.background]="getRematchGradient()"
             >
-              <lucide-icon name="RotateCcw" class="btn-icon" size="16"></lucide-icon>
+              <lucide-icon
+                name="RotateCcw"
+                class="btn-icon"
+                size="16"
+              ></lucide-icon>
               Rematch
             </button>
             } @else {
             <button
               class="btn btn-primary"
-              (click)="modalData()?.offeredByOpponent ? onAcceptRematch() : onOfferRematch()"
-              [disabled]="modalData()?.rematchOfferedByMe || modalData()?.rematchCancelled"
+              (click)="
+                modalData()?.offeredByOpponent
+                  ? onAcceptRematch()
+                  : onOfferRematch()
+              "
+              [disabled]="
+                modalData()?.rematchOfferedByMe || modalData()?.rematchCancelled
+              "
               title="Rematch"
               [style.background]="getRematchGradient()"
             >
-              <lucide-icon name="RotateCcw" class="btn-icon" size="18"></lucide-icon>
-              <span *ngIf="modalData()?.rematchCancelled">Rematch</span>
-              <span *ngIf="!modalData()?.rematchCancelled && modalData()?.offeredByOpponent"
-                >Accept rematch</span
-              >
-              <span
-                *ngIf="
-                  !modalData()?.rematchCancelled &&
-                  !modalData()?.offeredByOpponent &&
-                  !modalData()?.rematchOfferedByMe
-                "
-                >Offer Rematch</span
-              >
-              <span *ngIf="!modalData()?.rematchCancelled && modalData()?.rematchOfferedByMe"
-                >Waiting...</span
-              >
+              <lucide-icon
+                name="RotateCcw"
+                class="btn-icon"
+                size="18"
+              ></lucide-icon>
+              @if (modalData()?.rematchCancelled) {
+              <span>Rematch</span>
+              } @else if (modalData()?.offeredByOpponent) {
+              <span>Accept rematch</span>
+              } @else if (modalData()?.rematchOfferedByMe) {
+              <span>Waiting...</span>
+              } @else {
+              <span>Offer Rematch</span>
+              }
             </button>
             }
 
@@ -109,7 +120,9 @@ export class ModalComponent {
 
   modal = input<SystemModalData | null>(null);
 
-  protected readonly modalData = computed(() => this.modal() ?? this.modalService.currentModal());
+  protected readonly modalData = computed(
+    () => this.modal() ?? this.modalService.currentModal()
+  );
 
   createGame = output<void>();
   rematch = output<void>();

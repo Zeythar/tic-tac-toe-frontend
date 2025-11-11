@@ -5,30 +5,36 @@
 >
   <div class="content">
     <!-- Home screen: choose how to play -->
-    <app-home *ngIf="stage() === 'welcome'" (playAgainstFriend)="onModeSelected($event)"></app-home>
+    @if (stage() === 'welcome') {
+    <app-home (playAgainstFriend)="onModeSelected($event)"></app-home>
+    }
 
     <!-- Connecting screen: establishing server connection -->
-    <app-connecting *ngIf="stage() === 'connecting'"></app-connecting>
+    @if (stage() === 'connecting') {
+    <app-connecting></app-connecting>
+    }
 
     <!-- AI settings screen -->
+    @if (stage() === 'ai-settings') {
     <app-ai-settings
-      *ngIf="stage() === 'ai-settings'"
       (start)="onAiStart($event)"
       (back)="stage.set('welcome')"
     ></app-ai-settings>
+    }
 
     <!-- Share link screen -->
+    @if (stage() === 'share') {
     <app-share-link
-      *ngIf="stage() === 'share'"
       [shareLink]="shareLink()"
       [copied]="copied()"
       (copyLink)="copyShareLink()"
       (back)="goHome()"
     ></app-share-link>
+    }
 
     <!-- Game board: active game -->
+    @if (stage() === 'in-game') {
     <app-game-board
-      *ngIf="stage() === 'in-game'"
       [board]="board()"
       [mySymbol]="mySymbol()"
       [currentTurn]="currentTurn()"
@@ -45,6 +51,7 @@
       (back)="goHome()"
       (reset)="onReset()"
     ></app-game-board>
+    }
   </div>
 </main>
 <router-outlet />

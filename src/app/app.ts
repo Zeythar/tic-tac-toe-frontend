@@ -1,6 +1,5 @@
 import { Component, signal, OnDestroy, inject, effect } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NgIf } from '@angular/common';
 import { HomeComponent } from './pages/home.component';
 import { ConnectingComponent } from './pages/connecting.component';
 import { ShareLinkComponent } from './pages/share-link.component';
@@ -23,7 +22,6 @@ import { NetworkService } from './services/network.service';
   selector: 'app-root',
   imports: [
     RouterOutlet,
-    NgIf,
     HomeComponent,
     ConnectingComponent,
     ShareLinkComponent,
