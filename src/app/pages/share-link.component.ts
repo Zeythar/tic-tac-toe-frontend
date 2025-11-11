@@ -1,9 +1,16 @@
-import { Component, input, output, inject, effect } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
+import {
+  Component,
+  input,
+  output,
+  inject,
+  effect,
+  signal,
+} from '@angular/core';
 import { BackButtonComponent } from '../components/back-button.component';
 import { LucideAngularModule } from 'lucide-angular';
 import { ToastService } from '../services/toast.service';
 import { COPY_FEEDBACK_DURATION_MS } from '../constants/game.constants';
+import QRCode from 'qrcode';
 
 /**
  * Component for displaying the share link with copy functionality.
@@ -11,7 +18,7 @@ import { COPY_FEEDBACK_DURATION_MS } from '../constants/game.constants';
 @Component({
   selector: 'app-share-link',
   standalone: true,
-  imports: [CommonModule, NgIf, LucideAngularModule, BackButtonComponent],
+  imports: [LucideAngularModule, BackButtonComponent],
   template: `
     <div class="share-container">
       <div class="header-actions">
@@ -28,6 +35,18 @@ import { COPY_FEEDBACK_DURATION_MS } from '../constants/game.constants';
         </div>
 
         <div class="share-content">
+          <!-- QR Code Display -->
+          @if (qrCodeDataUrl()) {
+          <div class="qr-code-container">
+            <img
+              [src]="qrCodeDataUrl()"
+              alt="QR Code for game link"
+              class="qr-code"
+            />
+            <p class="qr-note">Scan to join the game</p>
+          </div>
+          }
+
           <div class="link-container">
             <div class="link-box">{{ shareLink() }}</div>
             <button
@@ -35,21 +54,22 @@ import { COPY_FEEDBACK_DURATION_MS } from '../constants/game.constants';
               (click)="onCopyClick()"
               [attr.aria-label]="copied() === true ? 'Copied' : 'Copy link'"
             >
-              <ng-container *ngIf="copied() === true; else copyIcon">
-                <lucide-icon name="Check" class="icon" size="16"></lucide-icon>
-              </ng-container>
-              <ng-template #copyIcon>
-                <lucide-icon name="Copy" class="icon" size="16"></lucide-icon>
-              </ng-template>
+              @if (copied() === true) {
+              <lucide-icon name="Check" class="icon" size="16"></lucide-icon>
+              } @else {
+              <lucide-icon name="Copy" class="icon" size="16"></lucide-icon>
+              }
             </button>
           </div>
 
           <div class="button-section">
             <p class="waiting-note">
-              Waiting for your friend to join<span class="dot">.</span><span class="dot">.</span
-              ><span class="dot">.</span>
+              Waiting for your friend to join<span class="dot">.</span
+              ><span class="dot">.</span><span class="dot">.</span>
             </p>
-            <p class="waiting-note">The game will start automatically once they connect.</p>
+            <p class="waiting-note">
+              The game will start automatically once they connect.
+            </p>
           </div>
         </div>
       </div>
@@ -67,11 +87,38 @@ export class ShareLinkComponent {
   // Output: event when user clicks back
   back = output<void>();
 
+  // QR code data URL
+  qrCodeDataUrl = signal<string | null>(null);
+
   constructor() {
     // Show toast when copied changes to true
     effect(() => {
       if (this.copied() === true) {
-        this.toastService.success('Link copied to clipboard!', COPY_FEEDBACK_DURATION_MS);
+        this.toastService.success(
+          'Link copied to clipboard!',
+          COPY_FEEDBACK_DURATION_MS
+        );
+      }
+    });
+
+    // Generate QR code when share link changes
+    effect(() => {
+      const link = this.shareLink();
+      if (link) {
+        QRCode.toDataURL(link, {
+          width: 200,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#FFFFFF',
+          },
+        })
+          .then((url) => {
+            this.qrCodeDataUrl.set(url);
+          })
+          .catch((err) => {
+            console.error('Failed to generate QR code:', err);
+          });
       }
     });
   }
