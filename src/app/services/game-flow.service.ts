@@ -45,9 +45,9 @@ export class GameFlowService {
   /**
    * Current UI stage: 'welcome' | 'connecting' | 'share' | 'in-game' | 'ai-settings'
    */
-  readonly stage = signal<'welcome' | 'connecting' | 'share' | 'in-game' | 'ai-settings'>(
-    'welcome'
-  );
+  readonly stage = signal<
+    'welcome' | 'connecting' | 'share' | 'in-game' | 'ai-settings'
+  >('welcome');
 
   constructor() {
     this.setupStageSync();
@@ -168,7 +168,9 @@ export class GameFlowService {
    * @param code - Game room code
    * @returns Result indicating success or error
    */
-  async joinOnlineGame(code: string): Promise<{ success: boolean; errorCode?: string } | void> {
+  async joinOnlineGame(
+    code: string
+  ): Promise<{ success: boolean; errorCode?: string } | void> {
     try {
       const result = await this.gameSession.joinGame(code);
 
@@ -203,7 +205,9 @@ export class GameFlowService {
       } else {
         // Online rematch handled by game-actions.service
         // This is called from system modal which has separate handlers
-        console.debug('[GameFlow] Online rematch should be handled by app.ts modal handlers');
+        console.debug(
+          '[GameFlow] Online rematch should be handled by app.ts modal handlers'
+        );
       }
     } catch (e) {
       console.error('[GameFlow] Rematch failed', e);
@@ -246,15 +250,9 @@ export class GameFlowService {
         this.aiGame.stopGame();
       }
 
-      // Reset UI state
-      this.gameState.resetGameState();
-      this.gameState.setJoinError(null);
-      this.gameState.setCodeValue('');
-      this.gameState.setBlockedGameCode(null);
-      this.gameState.setDisconnectedPlayerId(null);
-      this.gameState.setCountdownSeconds(null);
-      this.gameState.setCopied(false);
-      this.gameState.setMoveError(null);
+      // Reset all state including game code
+      // This ensures setupStageSync() effect won't override our stage
+      this.gameState.resetAllState();
 
       // Clear localStorage and disconnect SignalR if explicitly leaving (from modal buttons)
       if (clearSession) {
@@ -301,7 +299,9 @@ export class GameFlowService {
 
       // If we're the creator on share screen, don't auto-join
       if (storedCode === code && !storedPlayerId) {
-        console.debug('[GameFlow] Skipping auto-join - creator on share screen');
+        console.debug(
+          '[GameFlow] Skipping auto-join - creator on share screen'
+        );
         this.gameState.setGameCode(code);
         this.stage.set('share');
         return;
